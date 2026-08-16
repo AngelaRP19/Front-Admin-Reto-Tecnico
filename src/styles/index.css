@@ -1,0 +1,228 @@
+@import "tailwindcss";
+
+/* Colores registrados como <color> para que el navegador pueda animar la
+   transición al cambiar de tema (con custom properties sin registrar, la
+   transición de background-color/color driveada solo por la variable no
+   se interpola y el elemento puede quedar "pegado" al color anterior). */
+@property --bg-color { syntax: '<color>'; inherits: true; initial-value: #ffffff; }
+@property --snd-bg-color { syntax: '<color>'; inherits: true; initial-value: #f3f3f3; }
+@property --text-color { syntax: '<color>'; inherits: true; initial-value: #1d1d1d; }
+@property --main-color { syntax: '<color>'; inherits: true; initial-value: #0077B6; }
+@property --accent-color { syntax: '<color>'; inherits: true; initial-value: #82cb1b; }
+@property --accent-text-color { syntax: '<color>'; inherits: true; initial-value: #4d7c0f; }
+@property --price-color { syntax: '<color>'; inherits: true; initial-value: #379424; }
+@property --error-color { syntax: '<color>'; inherits: true; initial-value: #dc2626; }
+@property --hover-color { syntax: '<color>'; inherits: true; initial-value: #3eaaf7; }
+@property --card-bg { syntax: '<color>'; inherits: true; initial-value: #ffffff; }
+@property --footer-bg { syntax: '<color>'; inherits: true; initial-value: #f3f3f3; }
+
+:root {
+  /* Escalado y tamaño base para soportar resoluciones altas (4K) */
+  --scaling-factor: 1;
+  --base-font-size: 16px;
+  --container-max-width: 1200px;
+  --page-padding: 1rem;
+  --control-font-size: 1rem;
+  --control-line-height: 1.2;
+  --control-padding-y: 0.625rem;
+  --control-padding-x: 1rem;
+
+  --bg-color: #ffffff;       /* fondo claro */
+  --snd-bg-color: #f3f3f3;   /* fondo secundario claro */
+  --text-color: #1d1d1d;
+  --main-color: #0077B6;
+  --accent-color: #82cb1b;
+  --accent-text-color: #4d7c0f;
+  --price-color: #3f6b0a;
+  --error-color: #dc2626;
+  --hover-color: #3eaaf7;
+  --card-bg: #ffffff;
+  --footer-bg: #f3f3f3;
+}
+
+/* Modo oscuro Sims */
+[data-theme="dark"] {
+  --bg-color: #0b1a1f;
+  --snd-bg-color: #142b33;
+  --text-color: #e8f9f1;     /* texto claro verdoso */
+  --main-color: #0695b1;     /* azul Sims */
+  --accent-color: #379424;
+  --accent-text-color: #52a830;
+  --price-color: #62a156;
+  --error-color: #f87171;
+  --hover-color: #247ab4;    /* verde agua */
+  --card-bg: #0e2438;        /* azul petróleo */
+  --footer-bg: #0b1a1f;
+}
+
+@theme inline {
+  --color-bg: var(--bg-color);
+  --color-snd-bg: var(--snd-bg-color);
+  --color-text: var(--text-color);
+  --color-main: var(--main-color);
+  --color-accent: var(--accent-color);
+  --color-accent-text: var(--accent-text-color);
+  --color-price: var(--price-color);
+  --color-error: var(--error-color);
+  --color-hover: var(--hover-color);
+  --color-card-bg: var(--card-bg);
+  --color-footer-bg: var(--footer-bg);
+  --font-nunito: "Nunito", sans-serif;
+}
+
+@layer base {
+  body {
+    font-family: var(--font-nunito);
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    transition: background-color 0.4s ease, color 0.4s ease;
+    /* Uso de tamaño base escalable para adaptar la UI en pantallas grandes */
+    font-size: var(--base-font-size);
+  }
+
+  button,
+  input,
+  select,
+  textarea {
+    line-height: var(--control-line-height);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+.animate-fadeIn {
+  animation: fadeIn .3s ease;
+}
+
+@keyframes zoomIn {
+  from {
+    opacity: 0;
+    transform: scale(.8);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Contenedor responsivo centralizado que las views pueden usar */
+.container {
+  width: 100%;
+  max-width: var(--container-max-width);
+  margin: 0 auto;
+  padding: 0 var(--page-padding);
+  box-sizing: border-box;
+}
+
+/* Reglas para soportar pantallas de alta resolución / 4K */
+@media (min-width: 2560px) {
+  :root {
+    --scaling-factor: 1.26;
+    --base-font-size: calc(16px * var(--scaling-factor));
+    --container-max-width: 1700px;
+    --page-padding: 2.25rem;
+    --control-font-size: 1.18rem;
+    --control-line-height: 1.24;
+    --control-padding-y: 0.78rem;
+    --control-padding-x: 1.2rem;
+  }
+
+  /* Preset compacto: prioriza densidad de información */
+  :root[data-scale-preset="compacto"] {
+    --scaling-factor: 1.15;
+    --base-font-size: calc(16px * var(--scaling-factor));
+    --container-max-width: 1600px;
+    --page-padding: 2rem;
+    --control-font-size: 1rem;
+    --control-line-height: 1.2;
+    --control-padding-y: 0.65rem;
+    --control-padding-x: 1.05rem;
+  }
+
+  /* Preset amplio: prioriza legibilidad y espacio */
+  :root[data-scale-preset="amplio"] {
+    --scaling-factor: 1.28;
+    --base-font-size: calc(16px * var(--scaling-factor));
+    --container-max-width: 1850px;
+    --page-padding: 2.6rem;
+    --control-font-size: 1.2rem;
+    --control-line-height: 1.24;
+    --control-padding-y: 0.8rem;
+    --control-padding-x: 1.2rem;
+  }
+
+  button {
+    font-size: var(--control-font-size);
+    line-height: var(--control-line-height);
+  }
+
+  input,
+  select,
+  textarea {
+    font-size: max(1.1rem, var(--control-font-size));
+    line-height: var(--control-line-height);
+  }
+}
+
+@media (min-width: 3840px) {
+  :root {
+    --scaling-factor: 1.45;
+    --base-font-size: calc(16px * var(--scaling-factor));
+    --container-max-width: 2350px;
+    --page-padding: 3rem;
+    --control-font-size: 1.42rem;
+    --control-line-height: 1.27;
+    --control-padding-y: 0.96rem;
+    --control-padding-x: 1.45rem;
+  }
+
+  :root[data-scale-preset="compacto"] {
+    --scaling-factor: 1.3;
+    --base-font-size: calc(16px * var(--scaling-factor));
+    --container-max-width: 2100px;
+    --page-padding: 2.6rem;
+    --control-font-size: 1.15rem;
+    --control-line-height: 1.22;
+    --control-padding-y: 0.78rem;
+    --control-padding-x: 1.2rem;
+  }
+
+  :root[data-scale-preset="amplio"] {
+    --scaling-factor: 1.5;
+    --base-font-size: calc(16px * var(--scaling-factor));
+    --container-max-width: 2550px;
+    --page-padding: 3.3rem;
+    --control-font-size: 1.45rem;
+    --control-line-height: 1.28;
+    --control-padding-y: 1rem;
+    --control-padding-x: 1.5rem;
+  }
+
+  button {
+    font-size: var(--control-font-size);
+    line-height: var(--control-line-height);
+  }
+
+  input,
+  select,
+  textarea {
+    font-size: max(1.25rem, var(--control-font-size));
+    line-height: var(--control-line-height);
+  }
+}
+
+/* Imágenes fluidas para evitar pixelación o overflow */
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
