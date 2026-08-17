@@ -38,7 +38,7 @@ export const messages = {
   "community.title": "Défis de la communauté",
   "community.subtitle": "Inscrits et statut par défi",
   "community.subscribers": "inscrits",
-  "community.statusUpcoming": "À venir",
+  "community.statusEnrolled": "Inscrit",
   "community.statusInProgress": "En cours",
   "community.statusCompleted": "Terminé",
   "community.statusAbandoned": "Abandonné",
