@@ -6,6 +6,8 @@ import FormInput from "../../../components/common/FormInput";
 import { login, fetchCurrentUser, logout } from "../services/authService";
 import { useAuth } from "../../../context/AuthContext";
 
+const LOGO_URL = "https://res.cloudinary.com/w1jl4sa5/image/upload/v1784825556/Logo_of_The_Sims_4.svg_jagzsl.webp";
+
 function LoginPage() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -49,9 +51,11 @@ function LoginPage() {
   return (
     <div className="min-h-screen w-full flex items-center justify-center bg-[#131a24] px-5 py-10 min-[2560px]:px-12 min-[2560px]:py-16 min-[3840px]:px-20 min-[3840px]:py-24">
       <div className="w-full max-w-[23.75rem] min-[2560px]:max-w-[38rem] min-[3840px]:max-w-[50rem] bg-white rounded-2xl min-[2560px]:rounded-3xl shadow-2xl p-8 min-[2560px]:p-14 min-[3840px]:p-20 flex flex-col items-center text-center">
-        <h1 className="font-nunito text-2xl min-[2560px]:text-4xl min-[3840px]:text-6xl font-extrabold text-main mb-1 min-[2560px]:mb-2">
-          {t("login.title", "The Sims")}
-        </h1>
+        <img
+          src={LOGO_URL}
+          alt="The Sims"
+          className="w-24 h-24 min-[2560px]:w-36 min-[2560px]:h-36 min-[3840px]:w-48 min-[3840px]:h-48 object-contain mb-1 min-[2560px]:mb-2"
+        />
         <p className="text-xs min-[2560px]:text-base min-[3840px]:text-xl font-bold tracking-[0.08em] uppercase text-[#1d1d1d]/60 mb-7 min-[2560px]:mb-10">
           {t("login.panel", "Panel de administración")}
         </p>
