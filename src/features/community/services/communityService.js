@@ -1,14 +1,5 @@
 import { apiClient } from "../../../services/apiClient";
 
-const MONTHS = ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic"];
-
-function formatChallengeDate(value) {
-  if (!value) return "";
-  const [year, month, day] = value.split("-");
-  const monthName = MONTHS[Number(month) - 1] || month;
-  return `${Number(day)} ${monthName} ${year}`;
-}
-
 // INICIADO = estado por defecto al inscribirse (backend: SubscriptionChallenge.status
 // default = INICIADO). No hay transición automática por fecha ni estado "pendiente/próximo"
 // en el backend — EN_PROGRESO lo setea el cliente cuando el usuario arranca de verdad.
@@ -22,33 +13,61 @@ const STATUS_GROUP = {
   FALLIDO: "abandoned",
 };
 
+// El backend no traduce un mismo reto: /nodos/challenges?lang=xx devuelve una fila
+// (con su propio id) por cada idioma, no una fila con nombre traducido. Por eso hay
+// que traer los 3 idiomas y agrupar las filas que son "el mismo" reto conceptual.
+// No hay ningún id/slug compartido entre esas filas — pero start+end sí son idénticos
+// entre variantes de idioma del mismo reto (confirmado contra el backend), así que se
+// usan como clave de agrupación.
+const LANGUAGES = ["es", "en", "fr"];
+
 function emptyCounts() {
   return { enrolled: 0, inProgress: 0, completed: 0, abandoned: 0, total: 0 };
 }
 
-export async function getCommunityStats() {
-  const [challenges, subscriptions] = await Promise.all([
-    apiClient.get("/nodos/challenges", { auth: false }),
+export async function getCommunityStats(locale = "es") {
+  const [challengesByLanguage, subscriptions] = await Promise.all([
+    Promise.all(LANGUAGES.map((lang) => apiClient.get(`/nodos/challenges?lang=${lang}`, { auth: false }))),
     apiClient.get("/nodos/subscriptionchallenges"),
   ]);
 
-  const countsByChallenge = {};
+  const groups = new Map();
+  LANGUAGES.forEach((lang, i) => {
+    (challengesByLanguage[i] || []).forEach((challenge) => {
+      const key = `${challenge.start}|${challenge.end}`;
+      if (!groups.has(key)) {
+        groups.set(key, { start: challenge.start, end: challenge.end, namesByLanguage: {}, ids: new Set() });
+      }
+      const group = groups.get(key);
+      group.namesByLanguage[lang] = challenge.name;
+      group.ids.add(challenge.id);
+    });
+  });
+
+  const groupKeyById = new Map();
+  groups.forEach((group, key) => {
+    group.ids.forEach((id) => groupKeyById.set(id, key));
+  });
+
+  const countsByGroup = {};
   (subscriptions || []).forEach((sub) => {
     const challengeId = sub.challenge?.id;
     if (challengeId == null) return;
-    const group = STATUS_GROUP[sub.status] || "abandoned";
-    if (!countsByChallenge[challengeId]) {
-      countsByChallenge[challengeId] = emptyCounts();
+    const groupKey = groupKeyById.get(challengeId);
+    if (!groupKey) return;
+    const statusGroup = STATUS_GROUP[sub.status] || "abandoned";
+    if (!countsByGroup[groupKey]) {
+      countsByGroup[groupKey] = emptyCounts();
     }
-    countsByChallenge[challengeId][group] += 1;
-    countsByChallenge[challengeId].total += 1;
+    countsByGroup[groupKey][statusGroup] += 1;
+    countsByGroup[groupKey].total += 1;
   });
 
-  return (challenges || []).map((challenge) => ({
-    id: challenge.id,
-    name: challenge.name,
-    startDate: formatChallengeDate(challenge.start),
-    endDate: formatChallengeDate(challenge.end),
-    counts: countsByChallenge[challenge.id] || emptyCounts(),
+  return Array.from(groups.entries()).map(([key, group]) => ({
+    id: key,
+    name: group.namesByLanguage[locale] || group.namesByLanguage.es || Object.values(group.namesByLanguage)[0],
+    startDate: group.start,
+    endDate: group.end,
+    counts: countsByGroup[key] || emptyCounts(),
   }));
 }

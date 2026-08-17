@@ -9,7 +9,14 @@ const BADGE_STYLES = {
   abandoned: "bg-gray-500/10 text-gray-500 dark:text-gray-400",
 };
 
-function ChallengeRow({ challenge, t }) {
+function formatChallengeDate(value, locale) {
+  if (!value) return "";
+  const date = new Date(`${value}T00:00:00`);
+  if (Number.isNaN(date.getTime())) return value;
+  return new Intl.DateTimeFormat(locale, { day: "numeric", month: "short", year: "numeric" }).format(date);
+}
+
+function ChallengeRow({ challenge, t, locale }) {
   const badges = [
     { key: "enrolled", label: t("community.statusEnrolled", "Inscrito"), count: challenge.counts.enrolled },
     { key: "inProgress", label: t("community.statusInProgress", "En curso"), count: challenge.counts.inProgress },
@@ -22,7 +29,7 @@ function ChallengeRow({ challenge, t }) {
       <div className="min-w-0">
         <p className="font-bold text-base min-[2560px]:text-2xl min-[3840px]:text-3xl text-text truncate">{challenge.name}</p>
         <p className="text-xs min-[2560px]:text-lg min-[3840px]:text-xl text-text/50 mt-0.5">
-          {challenge.startDate} · {challenge.endDate}
+          {formatChallengeDate(challenge.startDate, locale)} · {formatChallengeDate(challenge.endDate, locale)}
         </p>
       </div>
 
@@ -61,8 +68,9 @@ function CommunityPage() {
 
   useEffect(() => {
     let cancelled = false;
+    setLoading(true);
 
-    getCommunityStats()
+    getCommunityStats(i18n.locale)
       .then((data) => {
         if (!cancelled) setChallenges(data);
       })
@@ -77,7 +85,7 @@ function CommunityPage() {
       cancelled = true;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [i18n.locale]);
 
   return (
     <div className="pt-6 min-[2560px]:pt-10 min-[3840px]:pt-14">
@@ -97,7 +105,7 @@ function CommunityPage() {
       ) : (
         <div className="bg-card-bg rounded-2xl min-[2560px]:rounded-3xl shadow-[0_0.125rem_0.625rem_rgba(0,0,0,0.06)] px-5 min-[2560px]:px-8 min-[3840px]:px-11">
           {challenges.map((challenge) => (
-            <ChallengeRow key={challenge.id} challenge={challenge} t={t} />
+            <ChallengeRow key={challenge.id} challenge={challenge} t={t} locale={i18n.locale} />
           ))}
         </div>
       )}
