@@ -67,7 +67,7 @@ export const messages = {
   "notify.platformMac": "Mac",
   "notify.platformSteam": "Steam",
   "notify.platformMobile": "Móvil",
-  "notify.submit": "Enviar a {count} Beta Testers",
+  "notify.submit": "Enviar a Beta Testers",
   "notify.submitting": "Enviando...",
   "notify.success": "¡Notificación enviada a los beta testers!",
   "notify.required": "Este campo es obligatorio.",
